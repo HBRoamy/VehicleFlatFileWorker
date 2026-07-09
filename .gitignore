@@ -1,0 +1,11 @@
+/vendor
+/node_modules
+/public/storage
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+.phpunit.cache
+storage/app/queue/*.json
+storage/app/queue/*.inflight
+database/database.sqlite

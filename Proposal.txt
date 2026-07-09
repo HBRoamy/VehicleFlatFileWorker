@@ -1,0 +1,35 @@
+Task
+Migrate a Laravel 12 application to Symfony. The app is a production-style background worker, not a web app. It uses Eloquent, Artisan commands, Laravel DI, and AWS SDK -- no HTTP API, no auth, no Blade views.
+
+App
+Vehicle Data Handler -- a CLI daemon that polls AWS SQS for file messages, downloads CSVs from S3, validates 20-column vehicle records (including ISO 3779 VIN check-digit), and upserts valid rows to PostgreSQL while quarantining invalid ones. Runs on org EC2 with IAM instance profiles. A second daemon rotates secrets and reconnects the DB without process restart.
+
+Key stats: ~70 files, ~2,100 LOC, 3 Eloquent models, 2 Artisan commands, 4 interfaces with local/AWS driver swapping, 12 test files (~35 tests), parallel processing via amphp/parallel.
+
+No HTTP routes, no app-level auth, no Blade/Livewire, no Laravel Queue jobs. Security is IAM + VPC, not application middleware.
+
+Migration Scope
+The model will be expected to:
+
+Replace 3 Eloquent models with Doctrine entities (16 casts, custom timestamps, unique VIN constraint, 4 indexes)
+Convert 3 Laravel migrations to Doctrine migrations producing identical Postgres schema
+Rewrite FileLockManager -- pessimistic SELECT ... FOR UPDATE, stale-lock reclaim, unique-constraint race handling via SQLSTATE codes
+Rewrite VehicleFileProcessor batch commit -- Laravel upsert() on VIN conflict with partial column update list, plus bulk insert for bad rows, in one transaction
+Convert VehicleHandlerServiceProvider (7 singletons, env-driven driver switching) to Symfony services.yaml
+Convert 2 Artisan commands (vehicle:poll, vehicle:refresh-secrets) to Symfony Console commands with signal handling and --once flag
+Rewrite runtime DB reconnect in RefreshSecretsCommand -- Laravel's config() mutation + DB::purge()/DB::reconnect() has no direct Symfony equivalent
+Migrate test harness -- replace RefreshDatabase, $this->artisan(), and container swapping with Symfony KernelTestCase + CommandTester equivalents
+Wire AWS SDK clients (SqsClient, S3Client, SecretsManagerClient) in Symfony DI with region from env and EC2 instance-profile credentials
+Preserve amphp/parallel worker pool lifecycle -- workers do CPU-only validation; parent commits DB batches; pool shutdown on daemon exit
+Leave portable code untouched -- VehicleRecordValidator, VinDecoder, DTOs, contracts, AWS service classes, league/csv parser
+Not add HTTP routes, controllers, Security bundle, or Twig -- the app never had them
+Notes (top 5 challenges for the model)
+Eloquent upsert() with partial column update -- Laravel's upsert($rows, uniqueBy: ['vin'], update: [...]) generates INSERT ... ON CONFLICT (vin) DO UPDATE SET with an explicit list of 16 mutable columns (VIN-derived fields intentionally excluded). Doctrine has no equivalent convenience method. Workaround: Write raw DBAL INSERT ... ON CONFLICT SQL via executeStatement(), or a repository method that builds the query. The column exclusion list must be preserved exactly.
+
+Distributed locking with pessimistic locks and race handling -- FileLockManager uses Eloquent's lockForUpdate() inside DB::transaction(), reclaims stale locks via Carbon datetime math, and catches QueryException by SQLSTATE (23505/23000) for concurrent-insert races. None of these map 1:1 to Doctrine. Workaround: Use Doctrine DBAL forUpdate() on the query, UniqueConstraintViolationException for race detection, and DateTimeImmutable comparisons for stale-lock logic.
+
+Runtime DB credential rotation and reconnect -- RefreshSecretsCommand mutates Laravel config at runtime (config([...])) then calls DB::purge() + DB::reconnect() to swap credentials on a long-running daemon. Symfony/Doctrine has no "replace credentials and reconnect" API. Workaround: Call $connection->close() on the Doctrine DBAL connection, override params via a custom connection wrapper or by re-setting DBAL connection params, then let the next query auto-reconnect.
+
+Eloquent models to Doctrine entities -- 3 models with 16 type casts (decimal:2, boolean, array for JSON, date:Y-m-d, datetime), custom timestamp handling ($timestamps = false, UPDATED_AT = null), status constants, and query scopes. These must become Doctrine entities with correct ORM annotations/attributes and matching type mappings. Workaround: Map Eloquent casts to Doctrine column types (Types::JSON, Types::DECIMAL, Types::BOOLEAN, Types::DATE_IMMUTABLE). Handle timestamps manually since Doctrine lifecycle callbacks differ from Eloquent's.
+
+Test harness migration -- Feature tests rely on Laravel's RefreshDatabase (auto-migrate + rollback), $this->artisan() for command integration, and $this->app->instance() for swapping in test doubles (InMemoryQueueService, SyncRecordProcessor). All of this is framework-specific with no direct Symfony equivalent. Workaround: Use Symfony KernelTestCase + Doctrine schema tool for DB lifecycle, CommandTester for CLI tests, and services_test.yaml to override service bindings with test doubles.

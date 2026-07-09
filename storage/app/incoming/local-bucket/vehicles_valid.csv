@@ -1,0 +1,11 @@
+vin,model,model_year,trim,body_style,current_price_usd,msrp_usd,carfax_certified,pincode,is_new,mileage,previous_owners,exterior_color,interior_color,engine_type,transmission,fuel_efficiency_mpg,manufacture_date,registration_date,features
+1HGCM82633A004352,Accord,2022,EX-L,sedan,28999,31000,true,560001,false,15000,1,Blue,Black,gasoline,automatic,32.5,2021-11-05,2022-01-10,"{""airbags"":6,""sunroof"":true,""headlamps"":""led"",""driverAssist"":[""lane-keep"",""acc""]}"
+JHMFA16596S000123,Civic,2020,Sport,hatchback,17500,21000,true,700001,false,42000,2,Grey,Grey,gasoline,manual,30,2019-06-01,2019-09-15,"{""airbags"":4,""sunroof"":false}"
+5YJ3E1EAXHF000316,Model 3,2024,Long Range,sedan,44990,47000,false,560037,true,12,0,Red,White,electric,automatic,,2024-02-20,,"{""airbags"":8,""sunroof"":true,""headlamps"":""led"",""driverAssist"":[""autopilot""]}"
+WBA8E9G52HNU12345,3 Series,2021,330i,sedan,31000,42000,true,600001,false,28000,1,Black,Tan,gasoline,automatic,28,2020-08-12,2020-11-01,"{""airbags"":6,""sunroof"":true,""headlamps"":""laser""}"
+KMHD84LFXJU123456,Elantra,2022,SEL,sedan,20999,23000,true,411001,false,9000,1,White,Black,hybrid,cvt,50.5,2021-12-01,2022-02-14,"{""airbags"":6,""sunroof"":true,""blindSpot"":true}"
+LFV2A21K0E3000001,Bolt,2023,EV,hatchback,26500,28000,true,380001,true,5,0,Silver,Black,electric,automatic,,2023-03-10,,"{""airbags"":6,""headlamps"":""led""}"
+MA3ERLF1800000001,Swift,2021,VXi,hatchback,12000,13500,false,110001,false,33000,1,Red,Beige,gasoline,manual,40,2020-10-01,2021-01-05,"{""airbags"":2,""sunroof"":false}"
+SALGA2EF7HA000001,Range Rover,2020,HSE,suv,62000,90000,true,500001,false,51000,2,Green,Tan,diesel,automatic,22,2019-05-15,2019-08-20,"{""airbags"":8,""sunroof"":true,""headlamps"":""xenon"",""driverAssist"":[""360cam"",""parkAssist""]}"
+2T1BURHE5JC001234,Corolla,2023,LE,sedan,22450.5,24000,true,682001,true,20,0,White,Black,gasoline,cvt,34,2023-01-15,,"{""airbags"":7,""sunroof"":false,""headlamps"":""halogen""}"
+VF1RFB00000000001,Clio,2021,Zen,hatchback,15000,17000,false,400001,false,26000,1,Blue,Grey,gasoline,manual,45,2020-09-10,2020-12-01,"{""airbags"":4,""sunroof"":false}"

@@ -1,0 +1,16 @@
+## Dependencies to add on top of a fresh `laravel/laravel` install
+## Run these from the project root AFTER `composer create-project`.
+
+# CSV parsing (used by App\Services\Processing\CsvVehicleParser)
+composer require league/csv:^9.0
+
+# AWS SDK — provides SQS, S3 and Secrets Manager clients for the
+# production drivers (App\Services\**\{Sqs,S3,Aws}*).
+composer require aws/aws-sdk-php:^3.0
+
+# Parallel processing for the record processor
+# (App\Services\Processing\AmpRecordProcessor). Uses process-based workers by
+# default: no PHP extensions required, and it runs on Linux, macOS AND Windows.
+# (Optional: install a ZTS PHP 8.2+ build with ext-parallel to upgrade workers
+#  to native threads — no code change needed.)
+composer require amphp/parallel:^2.0
